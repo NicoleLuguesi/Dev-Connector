@@ -57,8 +57,6 @@ async (req, res) => {
 
     await user.save();
 
-    
-
     // Return jsonwebtoken
     
     const payload = {
