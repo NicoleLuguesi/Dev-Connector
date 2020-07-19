@@ -1,3 +1,4 @@
+// Route File
 const express = require('express');
 const router = express.Router();
 const { check, validationResult } = require('express-validator/check');
@@ -23,12 +24,10 @@ async (req, res) => {
   if(!errors.isEmpty()){
     return res.status(400).json({ errors: errors.array() });
     }
-
-
     try {
-      const user = await User.findById(req.user.id).select('-pasword');
+    const user = await User.findById(req.user.id).select('-pasword');
 
-    const newPost = new Post({
+    let newPost = new Post({
       text: req.body.text,
       name: user.name,
       avatar: user.avatar,
@@ -36,7 +35,6 @@ async (req, res) => {
       });
 
       const post = await newPost.save();
-
       res.json(post);
     } catch (err) {
       console.error(err.message);
@@ -44,12 +42,9 @@ async (req, res) => {
     }
   }
 );
-
-
 // @route  GET api/posts
 // @desc   Get all posts
 // @access Private
-
 router.get('/', auth, async(req, res)=> {
   try {
     const posts = await Post.find().sort({ date: -1 });
@@ -59,20 +54,17 @@ router.get('/', auth, async(req, res)=> {
       res.status(500).send('Server Error');
   }
 });
-
 // @route  GET api/posts/:id
 // @desc   Get post by ID
 // @access Private
-
 router.get('/;id', auth, async(req, res)=> {
   try {
     const post = await Post.findById(req.params.id);
-
     if(!post){
       return res.status(404).json({ msg: 'Post not found'})
     }
 
-    res.json(post)
+    res.json(posts)
   } catch (err) {
     console.error(err.message);
     if(err.kind === 'ObjectId') {
@@ -89,7 +81,6 @@ router.get('/;id', auth, async(req, res)=> {
 router.delete('/:id', auth, async(req, res)=> {
   try {
     const post = await Post.findById(req.params.id);
-
     if(!post) {
       return res.status(404).json({ msg: 'Post not found'})
     }

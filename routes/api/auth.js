@@ -1,11 +1,20 @@
+// Route File
 const express = require('express');
 const router = express.Router();
+// Bcrypt
 const bcrypt = require('bcryptjs');
+
+//Middleware
 const auth = require('../../middleware/auth');
+
+// JWT
 const jwt = require('jsonwebtoken');
 const config = require('config');
+
+// Express validator
 const { check, validationResult } = require('express-validator/check');
 
+// Models
 const User = require('../../models/User');
 
 // @route  GET api/auth
@@ -42,7 +51,7 @@ async (req, res) => {
     try{
           // See if user exists
           let user = await User.findOne({ email});
-
+          //If user does not exist, then there is no way to login
           if(!user) {
             return res
             .status(400)
@@ -52,19 +61,19 @@ async (req, res) => {
     // Return jsonwebtoken
 
     const isMatch = await bcrypt.compare(password, user.password);
-
+    // If there is no match between passwords
     if(!isMatch) {
       return res
             .status(400)
             .json({ errors: [{ msg: 'Invalid Credentials' }]});
     }
-    
+    // Create the payload for the token
     const payload = {
       user: {
         id: user.id
       }
     };
-
+    // Sign the token, set expiration, and callback and return either error
     jwt.sign(
             payload, 
             config.get('jwtSecret'),
@@ -73,13 +82,12 @@ async (req, res) => {
               if(err) throw err;
               res.json({ token })
             });
+    // Return jsonwebtoken
   } catch(err) {
       console.error(err.message);
       res.status(500).send('Server error')
     }
   }
 );
-
-module.exports = router;
 
 module.exports = router;

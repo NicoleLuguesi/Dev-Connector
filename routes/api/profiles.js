@@ -1,16 +1,19 @@
+//ROUTE FILE
 const express = require('express');
-const request = require('request');
-const config = require('config');
-
 const router = express.Router();
-const auth = require('../../middleware/auth');
-const { check, validationResult } = require('express-validator/check');
+
 
 const Profile = require('../../models/Profile');
 const User = require('../../models/User');
+const request = require('request');
+
+const { check, validationResult } = require('express-validator/check');
+const config = require('config');
+
+const auth = require('../../middleware/auth');
 
 
-// @route  GET api/profile/me
+// @route  GET api/profiles/me
 // @desc   Get current users profile
 // @access Private
 router.get('/me', auth, async (req, res) => {
@@ -104,19 +107,16 @@ async  (req, res) => {
 
     try {
       let profile = await Profile.findOne({ user: req.user.id });
-
+      // If profile then update
       if(profile) {
-        // Update
         profile = await Profile.findOneAndUpdate(
           { user: req.user.id },
           { $set: profileFields},
           { new: true }
           );
-
           return res.json(profile);
       }
-
-      // Create
+      // Create if not found
       profile = new Profile(profileFields);
 
       await profile.save();
@@ -137,7 +137,8 @@ router.get('/user/:user_id', async (req, res) => {
   try {
     const profile = await Profile.findOne({ user: req.params.user_id }).populate('user', ['name', 'avatar']);
 
-    if(!profile) return res.status(400).json({ msg: 'Profile not found' }
+    if(!profile) return res.status(400).json({ msg: 'Profile not found' 
+  }
     );
 
     res.json(profile)
@@ -188,7 +189,6 @@ router.delete('/', auth, async (req, res) => {
 // @route  PUT api/profile/experience
 // @desc   Add profile experience
 // @access Private
-
 router.put('/experience', [
   auth, 
   [

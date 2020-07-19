@@ -1,12 +1,21 @@
+// ROUTE FILE
 const express = require('express');
 const router = express.Router();
+
+
+// Imported Models
+const User = require('../../models/User');
+
+// Gravatar
 const gravatar = require('gravatar');
+
+// Bcryptjs - library to hash passwords
 const bcrypt = require('bcryptjs');
+
+// JWT
 const jwt = require('jsonwebtoken');
 const config = require('config');
 const { check, validationResult } = require('express-validator/check');
-
-const User = require('../../models/User');
 
 // @route  POST api/users
 // @desc   Register user
@@ -43,6 +52,7 @@ async (req, res) => {
       d: 'mm'
     })
 
+    // Encrypt password with bcrypt
     user = new User({
       name,
       email,
@@ -50,14 +60,11 @@ async (req, res) => {
       password
     });
 
-    // Encrypt password
     const salt = await bcrypt.genSalt(10);
 
     user.password = await bcrypt.hash(password, salt);
 
-    await user.save();
-
-    // Return jsonwebtoken
+    await User.create(user);
     
     const payload = {
       user: {
@@ -73,7 +80,9 @@ async (req, res) => {
               if(err) throw err;
               res.json({ token })
             });
-  } catch(err) {
+
+    // Return jsonwebtoken
+    } catch(err) {
       console.error(err.message);
       res.status(500).send('Server error')
     }
